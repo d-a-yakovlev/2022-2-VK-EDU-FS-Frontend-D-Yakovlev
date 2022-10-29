@@ -25,6 +25,7 @@ nonUniqueElements([10, 9, 10, 10, 9, 8]) == [10, 9, 10, 10, 9]
  */
 
 export default function nonUniqueElements(data) {
-  // your solution goes here
-  return data
+  return data.filter( element =>
+    data.filter(x => x == element).length > 1
+  );
 }

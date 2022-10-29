@@ -17,7 +17,11 @@ correctSentence("Greetings, friends") == "Greetings, friends."
 correctSentence("Greetings, friends.") == "Greetings, friends."
  */
 
-export default function correctSentence(text) {
-  // your solution goes here
+export default  function correctSentence(text) {
+  text = String(text) //anything come here becomes in string
+  text = text.charAt(0).toUpperCase() + text.slice(1);
+  if (text.charAt(text.length-1) != '.') {
+    text += '.'
+  }
   return text;
 }
