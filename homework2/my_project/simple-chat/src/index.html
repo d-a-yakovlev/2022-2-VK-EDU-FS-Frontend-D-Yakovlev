@@ -3,21 +3,25 @@
     <head lang="en">
         <meta charset="UTF-8">
         <title>Send a message</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     </head>
     <body>
         <style>
             .form {
+                position: sticky;
+                bottom: 0;
                 width: 100%;
-                display: inline-block;
+                display: flex;
                 border: 1px solid rgba(25, 25, 25, 0.32);
+                margin-bottom: auto;
+                height: 50px;
             }
 
             .message {
-                color: red;
-                /* border: 1px solid; */
                 border-radius: 4px;
                 margin: 4px 0;
                 padding: 4px;
+                font-size: 20px;
             }
 
             input[type=submit] {
@@ -29,28 +33,229 @@
                 outline: none;
                 width: calc(100% - 2px);
             }
+
+            .small-top-elements {
+                margin-left: auto;
+                background-color: rgb(142, 36, 170);
+                color: rgb(206,147,216);
+                font-size: 35px;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 1rem;
+            }
+
+            .white-top-elements {
+                background-color: rgb(142, 36, 170);
+                color: white;
+                font-size: 50px;
+                margin-bottom: 1rem;
+                margin-top: 2rem;
+                margin-left: 2rem;
+                display: flex;
+            }
+
+            .break {
+                flex-basis: 100%;
+                height: 0.5rem;
+            }
+
+            .msg-block {
+                display: flex;
+                flex-direction: row;
+            }
+
+
+            .msg-right-block {
+                float: right;
+                background-color: rgb(243,229,245);
+                margin-top: auto;
+                margin-left: auto;
+                line-height:1.5;
+                width: max-content;
+                position: relative;
+                margin-right: 3rem;
+                padding: 1rem;
+                border-radius: 10px;
+                max-width: 50%;
+                overflow-wrap: anywhere; 
+                display: flex;
+                flex-direction: column;
+            }
+
+            .msg-right-block .msg-rigth-tip {
+                content: "";
+                position: absolute;
+                bottom: 5%;
+                left: 100%;
+                height: 30px;
+                width: 50px;
+                background: inherit;
+                clip-path: polygon(0 0, 0% 100%, 100% 100%);
+            }
+
+            .msg-left-block {
+                float: left;
+                background-color: rgb(255,255,255);
+                margin-top: auto;
+                line-height:1.5;
+                width: max-content;
+                position: relative;
+                margin-left: 3rem;
+                padding: 1rem;
+                border-radius: 10px;
+                max-width: 50%;
+                overflow-wrap: anywhere; 
+                display: flex;
+                flex-direction: column;
+            }
+
+            .msg-left-block .msg-left-tip {
+                content: "";
+                position: absolute;
+                bottom: 5%;
+                right: 100%;
+                height: 30px;
+                width: 50px;
+                background: inherit;
+                clip-path: polygon(0 100%, 100% 100%, 100% 0%);
+            }
+
+            .message-time {
+                margin-left: auto; 
+                font-size: 15px;
+                color: rgba(25, 25, 25, 0.32);
+                margin-bottom: 0.05rem;
+                margin-top: 0.05rem;
+            }
+
+            .top-menu {
+                background-color:rgb(142, 36, 170);
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .display {
+                width: 100%;
+                height: 50rem;
+                background-color: rgb(240,240,240);
+                overflow-y: auto;
+            }
+
         </style>
+        <div class = "top-menu">
+            <div class="small-top-elements">
+                <div class="material-icons" style="font-size: 35px;">square</div>
+                <div class="material-icons" style="font-size: 35px;">circle</div>
+                <div class="material-icons" style="font-size: 35px;">tornado</div>
+            </div>
+            <div class="break"></div>
+            <div class="white-top-elements">
+                <div class="material-icons" style="font-size: 70px; margin-left: 1rem; padding-top: 1rem;">arrow_back</div>
+                <div class="material-icons", style="font-size: 120px; margin-left: 5rem;">account_circle</div>
+            </div>
+            <div>
+                <div class="white-top-elements" style="padding-top: 1.5rem;">Аноним</div>
+                <div class="break"></div>
+                <div class="small-top-elements">Онлайн</div>
+            </div>
+            <div class="white-top-elements">
+                <div class="material-icons" style="font-size: 70px; margin-left: 4rem; padding-top: 1rem;">search</div>
+                <div class="material-icons" style="font-size: 70px; margin-left: 4rem; padding-top: 1rem;">more_vert</div>
+            </div>
+            <div class="break"></div>
+        </div>
+
+        <div class="display"></div>
+  
         <form class="form" action="/">
-            <div class="message"></div>
-            <input class="form-input" name="message-text" placeholder="Введите сообщение" type="text">
+            <input class="form-input" name="message-text" placeholder="Сообщение" type="text">
         </form>
+
         <script>
             const form = document.querySelector('form');
             const input = document.querySelector('.form-input');
-            const message = document.querySelector('.message');
+            const display= document.querySelector('.display');
+            
+            let currentSender = 2;
+            let msgIndex = 0;
 
-            form.addEventListener('submit', this.handleSubmit.bind(this));
+            while( localStorage.getItem(msgIndex) ) {
+                let msgMeta = JSON.parse(localStorage.getItem(msgIndex));
+                renderMessage(msgMeta.sender, msgMeta.time, msgMeta.text);
+                msgIndex++;
+            }
+
             form.addEventListener('keypress', this.handleKeyPress.bind(this));
 
             function handleSubmit (event) {
                 event.preventDefault();
-                message.innerText = input.value;
+
+                const sender = getSender();
+                const currentTime = (new Date()).toLocaleTimeString().slice(0, -3);
+                const msgText = input.value;
+
+                renderMessage(sender, currentTime, msgText);
+                localStorage.setItem(msgIndex.toString(), JSON.stringify(
+                    {
+                        'sender' : sender.toString(),
+                        'time' : currentTime.toString(),
+                        'text' : msgText, 
+                    }
+                ));
+
+                if (msgText == '/localStorage.clear') {
+                    localStorage.clear();
+                }
+
+                input.value = '';
+                msgIndex++;
             }
 
             function handleKeyPress (event) {
                 if (event.keyCode === 13) {
-                    form.dispatchEvent(new Event('submit'));
+                    handleSubmit(event);
                 }
+            }
+
+            function getSender() {
+                if ( currentSender === 1 ) {
+                    currentSender = 2;
+                    return currentSender
+                } else if ( currentSender === 2 ){
+                    currentSender = 1;
+                    return currentSender
+                } 
+            }
+
+            function renderMessage(sender, time, text) {
+                const mainBlock = document.createElement('div');
+                mainBlock.className = 'msg-block';
+
+                const messageBlock = document.createElement('div');
+                let messageBlockClassName = sender == 1 ? 'msg-right-block' :  'msg-left-block';
+                messageBlock.className = messageBlockClassName;
+
+                const messagePar = document.createElement('p');
+                messagePar.className = 'message';
+                messagePar.innerText = text;
+                messageBlock.append(messagePar);
+
+                const messageTime = document.createElement('p');
+                messageTime.className = 'message-time';
+                messageTime.innerText = time;
+                messageBlock.append(messageTime);
+
+                const messageTip = document.createElement('span');
+                let messageTipClassName = sender == 1 ? 'msg-rigth-tip' :  'msg-left-tip';
+                messageTip.className = messageTipClassName;
+                messageBlock.append(messageTip);
+
+                mainBlock.append(messageBlock);
+            
+                display.append(mainBlock);
+                const breakBlock = document.createElement('div');
+                breakBlock.className = 'break';
+                display.append(breakBlock);
             }
         </script>
     </body>
